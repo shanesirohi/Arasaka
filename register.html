@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Register</title>
+     <link rel="shortcut icon" href="lsimage/logo.jpg" type="Zimage/x-icon" />
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+     <style>
+          body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        margin: 0px;
+        background-image: url('lsimage/bg.gif');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .logo {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+
+    .logo img {
+        max-width: 120px;
+        height: auto;
+        border-radius: 20px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    button,
+    .custom-control-label,
+    .badge {
+        font-size: 15px;
+        padding: 10px;
+        background-color: transparent; /* Set background to transparent */
+    }
+
+    /* Adjust the box-shadow if needed */
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        box-shadow: 0 0 5px rgba(81, 203, 238, 1); /* Adjust the color and size of the shadow */
+    }
+
+    .mb-3 {
+        color: white;
+    }
+        </style>        
+</head>
+
+<body>
+    <div class="logo">
+        <img src="lsimage/logo.jpg" alt="Arasaka">
+    </div>
+    <div class="mb-5">
+                <h3 class="mb-3">Sign Up</h3>
+                <input type="text" placeholder="Fullname" id="nameInp" class="form-control mb-3">
+                <input type="text" placeholder="Email" id="emailInp" class="form-control mb-3">
+                <input type="text" placeholder="Username" id="userInp" class="form-control mb-3">
+                <input type="password" placeholder="Password" id="passInp" class="form-control mb-3">
+                <button type="text" id="sub_btn" class="btn w-100 btn-outline-primary mb-3">Register</button>
+                <a class='badge badge-secondary py-1 w-100' href='login.html'>Already Have An Account?</a>
+    </div>
+
+    <script type="module">
+//-----------------------FIREBASE CONFIG--------aaaaaaaaaaaaaaaaaasuiiiiiiiiiiiiii-----------------------------------------------------------------------------------------------//
+          import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
+        
+          const firebaseConfig = {
+            apiKey: "AIzaSyAE41PEgLhG2VtWBtdKywNLqv_fCy3z2g8",
+            authDomain: "seekme-43705.firebaseapp.com",
+            projectId: "seekme-43705",
+            storageBucket: "seekme-43705.appspot.com",
+            messagingSenderId: "978726810468",
+            appId: "1:978726810468:web:573c7d3b627e5919c64071",
+            databaseURL: "https://seekme-43705-default-rtdb.asia-southeast1.firebasedatabase.app",
+            measurementId: "G-J1RBSKYW5Z"
+          };
+        
+          const app = initializeApp(firebaseConfig);
+        
+          import { getDatabase, ref, set, child, get }
+             from "https://www.gstatic.com/firebasejs/10.3.0/firebase-database.js";
+        
+          const db = getDatabase();
+
+//------------------------------THE REFRENECES-------------------------------------------------------------------------------------------------//
+
+          const name = document.getElementById('nameInp');
+          const email = document.getElementById('emailInp');
+          const username = document.getElementById('userInp');
+          const pass = document.getElementById('passInp');
+          const submit = document.getElementById('sub_btn');
+
+//---------------------------------VALIDATION--------------------------------------------------------------------------------------------------//
+
+          function isEmptyOrSpaces(str){
+              return str === null || str.match(/^ *$/) !== null;
+          }
+          
+          function Validation(){
+            let nameregex = /^[a-zA-Z\s]+$/;
+            let emailregex = /^[a-zA-Z0-9]+@(gmail|yahoo|outlook)\.com$/;
+            let userregex = /^[a-zA-Z0-9]{5,}$/;
+
+            if(isEmptyOrSpaces(name.value) || isEmptyOrSpaces(email.value) || isEmptyOrSpaces(username.value) ||
+                isEmptyOrSpaces(pass.value)){
+                    alert("you cannot left any field empty");
+                    return false;
+                }
+
+            if(!nameregex.test(name.value)){
+                  alert("the name should only contain alphabets!");
+                  return false;
+            }
+
+            if(!emailregex.test(email.value)){
+                  alert("enter a valid email");
+                  return false;
+            }
+
+            if(!userregex.test(username.value)){
+                  alert("-username can only be alphanumeric\n-username must be aleast 5 characters\n-username cannot contain spaces");
+                  return false;
+            }
+
+            return true;
+        }
+
+//---------------------------------REGISTER USER TO FIREBASE-----------------------------------------------------------------------------------//
+
+function RegisterUser() {
+    if (!Validation()) {
+        return;
+    }
+    const dbRef = ref(db);
+
+    get(child(dbRef, "UsersList/" + username.value)).then((snapshot) => {
+        if (snapshot.exists()) {
+            alert("Account Already Exists!");
+        } else {
+            set(ref(db, "UsersList/" + username.value), {
+                fullname: name.value,
+                email: email.value,
+                username: username.value,
+                password: pass.value // Store the plain text password directly
+            }).then(() => {
+                alert("User added successfully");
+            }).catch((error) => {
+                alert("Error: " + error);
+            });
+        }
+    });
+}
+
+//---------------------------------ENCRIPTION-------------------------------------------------------------------------------------------------//
+   
+    function encPass(){
+        var pass12 = CryptoJS.AES.encrypt(pass.value, pass.value);
+        return pass12.toString();
+    } 
+
+//---------------------------------ASSIGN THE EVENTS------------------------------------------------------------------------------------------//
+
+    submit.addEventListener('click', RegisterUser);
+
+</script>
+</body>
+</html>

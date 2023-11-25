@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arasaka</title>
+    <link rel="shortcut icon" href="lsimage/logo.jpg" type="Zimage/x-icon" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        margin: 0px;
+        background-image: url('lsimage/bg.gif');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .logo {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+
+    .logo img {
+        max-width: 120px;
+        height: auto;
+        border-radius: 20px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    button,
+    .custom-control-label,
+    .badge {
+        font-size: 15px;
+        padding: 10px;
+        background-color: transparent; /* Set background to transparent */
+    }
+
+    /* Adjust the box-shadow if needed */
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        box-shadow: 0 0 5px rgba(81, 203, 238, 1); /* Adjust the color and size of the shadow */
+    }
+
+    .mb-3 {
+        color: white;
+    }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="lsimage/logo.jpg" alt="Arasaka">
+    </div>
+    <div class="mb-5">
+        <h3 class="mb-3">Login</h3>
+        <input type="text" placeholder="Username" id="userInp" class="form-control mb-3">
+        <input type="password" placeholder="Password" id="passInp" class="form-control mb-3">
+        <div class="custom-control custom-switch mb-3">
+            <input type="checkbox" class="custom-control-input" id="customSwitch1">
+            <label class="custom-control-label" for="customSwitch1">Keep me Logged In</label>
+        </div>
+        <button type="button" id="sub_btn" class="btn w-100 btn-outline-primary mb-3">Login</button>
+        <a class='badge badge-secondary py-1 w-100' href='register.html'>Want to Register ?</a>
+    </div>
+
+    <script type="module">
+        //-----------------------FIREBASE CONFIG-------------------------------------------------------------------//
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAE41PEgLhG2VtWBtdKywNLqv_fCy3z2g8",
+            authDomain: "seekme-43705.firebaseapp.com",
+            projectId: "seekme-43705",
+            storageBucket: "seekme-43705.appspot.com",
+            messagingSenderId: "978726810468",
+            appId: "1:978726810468:web:573c7d3b627e5919c64071",
+            databaseURL: "https://seekme-43705-default-rtdb.asia-southeast1.firebasedatabase.app",
+            measurementId: "G-J1RBSKYW5Z"
+        };
+
+        const app = initializeApp(firebaseConfig);
+
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-database.js";
+
+        const db = getDatabase();
+
+        //------------------------------THE REFERENCES---------------------------------------------------------------------//
+
+        const username = document.getElementById('userInp');
+        const pass = document.getElementById('passInp');
+        const submit = document.getElementById('sub_btn');
+
+        //------------------------------AUTHENTICATION PROCESS-------------------------------------------------------------//
+
+        function AuthenticateUser() {
+            const dbRef = ref(db, "UsersList/" + username.value);
+        
+            get(dbRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const dbpass = snapshot.val().password;
+                    if (dbpass === pass.value) {
+                        login(snapshot.val());
+                    } else {
+                        alert("Username or password is incorrect");
+                    }
+                } else {
+                    alert("Username or password is incorrect");
+                }
+            });
+        }
+        
+        
+
+        //------------------------------LOGIN------------------------------------------------------------------------------//
+
+        function login(user) {
+            const keepLoggedIn = document.getElementById('customSwitch1').checked;
+
+            if (!keepLoggedIn) {
+                sessionStorage.setItem('user', JSON.stringify(user));
+                window.location = "main.html";
+            } else {
+                localStorage.setItem('keepLoggedIn', 'yes');
+                localStorage.setItem('user', JSON.stringify(user));
+                window.location = "main.html";
+            }
+        }
+
+        //---------------------------------ASSIGN THE EVENT---------------------------------------------------------------//
+
+        submit.addEventListener('click', AuthenticateUser);
+
+    </script>
+</body>
+</html>
